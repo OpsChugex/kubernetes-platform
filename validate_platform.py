@@ -60,10 +60,14 @@ assert hpa["maxReplicas"] >= hpa["minReplicas"]
 pdb = by_kind["PodDisruptionBudget"][0]["spec"]
 assert pdb.get("minAvailable") == 1
 
-network_policy = by_kind["NetworkPolicy"][0]["spec"]
-assert "Ingress" in network_policy["policyTypes"]
-assert "Egress" in network_policy["policyTypes"]
-assert network_policy["podSelector"] == {}
+policies = {item["metadata"]["name"]: item["spec"] for item in by_kind["NetworkPolicy"]}
+assert "default-deny" in policies
+assert "allow-same-namespace-app-ingress" in policies
+assert set(policies["default-deny"]["policyTypes"]) == {"Ingress", "Egress"}
+assert policies["default-deny"]["podSelector"] == {}
+app_ingress = policies["allow-same-namespace-app-ingress"]
+assert app_ingress["podSelector"]["matchLabels"]["app"] == "evidence-demo"
+assert app_ingress["ingress"][0]["ports"][0]["port"] == 8080
 
 print("KUBERNETES_REFERENCE=PASS")
 print(f"DOCUMENTS={len(documents)}")
