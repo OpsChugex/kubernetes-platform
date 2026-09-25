@@ -4,6 +4,9 @@ metadata:
   name: reference-platform
   labels:
     pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -37,6 +40,13 @@ spec:
       securityContext:
         seccompProfile:
           type: RuntimeDefault
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: evidence-demo
       containers:
         - name: app
           image: nginxinc/nginx-unprivileged:1.27-alpine
@@ -123,3 +133,20 @@ metadata:
 spec:
   podSelector: {}
   policyTypes: ["Ingress", "Egress"]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-same-namespace-app-ingress
+  namespace: reference-platform
+spec:
+  podSelector:
+    matchLabels:
+      app: evidence-demo
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8080
