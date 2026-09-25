@@ -4,42 +4,40 @@
 
 **Classification:** Reference implementation
 
-**Deployment status:** Documented and validated, not presented as a customer production environment.
+**Deployment claim:** None
 
-This repository defines a security-focused Kubernetes application namespace pattern with:
+This repository defines and validates the operating shape of a security-conscious Kubernetes application namespace.
 
-- restricted Pod Security enforcement
-- dedicated ServiceAccount with token automount disabled
-- non-root workload execution
-- RuntimeDefault seccomp
+## Controls represented
+
+- restricted Pod Security admission label
+- dedicated service account
+- automatic service-account token mounting disabled
+- non-root container execution
 - privilege escalation disabled
-- Linux capabilities dropped
+- all Linux capabilities dropped
+- RuntimeDefault seccomp profile
 - read-only root filesystem
 - CPU and memory requests and limits
 - readiness and liveness probes
-- two-replica baseline
+- multiple replicas
 - PodDisruptionBudget
 - HorizontalPodAutoscaler
-- ClusterIP-only service exposure
-- default-deny ingress and egress network policy
+- ingress and egress NetworkPolicy
 
-## Reproduce the validation
-
-The validator reads the Kubernetes YAML offline. It does not connect to a Kubernetes cluster.
+## Reproduce validation
 
 ```bash
-python -m pip install PyYAML==6.0.3
+python -m pip install -r requirements.txt
 python validate_platform.py
 ```
 
-The GitHub Actions workflow repeats the same checks with read-only repository permissions and actions pinned to immutable commit SHAs.
+The validator parses the Kubernetes YAML and checks the documented resource and workload controls.
 
-## Evidence interpretation
+## Automated evidence
 
-A passing workflow proves that the checked manifest contains the documented security and reliability controls for that commit.
+GitHub Actions repeats the same validation on pushes, pull requests and manual runs. The workflow has read-only repository permissions and uses immutable action SHAs.
 
-It does not prove that a customer cluster is running this manifest, that a production cluster is compliant, or that an external security assessment has been completed.
+## Limitations
 
-## Operational note
-
-The baseline uses default-deny ingress and egress, then adds one explicit rule allowing traffic to the reference application only from pods in the same namespace on TCP 8080. External ingress remains blocked until an environment-specific policy is added. Production DNS, egress, ingress-controller, service-mesh and observability rules should be defined explicitly for the target environment.
+This repository is a reviewed reference pattern, not evidence of a customer cluster or production SLO. It deliberately avoids claiming workload performance, uptime or customer outcomes.
