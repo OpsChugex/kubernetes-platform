@@ -41,3 +41,15 @@ GitHub Actions repeats the same validation on pushes, pull requests and manual r
 ## Limitations
 
 This repository is a reviewed reference pattern, not evidence of a customer cluster or production SLO. It deliberately avoids claiming workload performance, uptime or customer outcomes.
+
+---
+
+## Related OpsChugex engineering
+
+For context on the engineering area represented in this repository:
+
+- [Managed Kubernetes](https://opschugex.com/managed-kubernetes)
+- [Kubernetes Engineering](https://opschugex.com/service-kubernetes)
+- [Engineering Proof](https://opschugex.com/engineering-proof)
+
+The repository classification, scope and limitations remain as documented above.
